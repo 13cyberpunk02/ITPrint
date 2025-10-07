@@ -7,39 +7,32 @@ using Microsoft.Extensions.Logging;
 namespace ITPrint.Application.Services;
 
 
-public class PrinterService : IPrinterService
+public class PrinterService(
+    IPrinterRepository printerRepository,
+    ILogger<PrinterService> logger)
+    : IPrinterService
 {
-    private readonly IPrinterRepository _printerRepository;
-    private readonly ILogger<PrinterService> _logger;
-
-    public PrinterService(
-        IPrinterRepository printerRepository,
-        ILogger<PrinterService> logger)
-    {
-        _printerRepository = printerRepository;
-        _logger = logger;
-    }
     public async  Task<IEnumerable<Printer>> GetAllPrintersAsync(CancellationToken cancellationToken = default)
-        => await _printerRepository.GetAllAsync(cancellationToken);
+        => await printerRepository.GetAllAsync(cancellationToken);
 
     public async Task<IEnumerable<Printer>> GetActivePrintersAsync(CancellationToken cancellationToken = default)
-        => await _printerRepository.GetActivePrintersAsync(cancellationToken);
+        => await printerRepository.GetActivePrintersAsync(cancellationToken);
 
     public async Task<IEnumerable<Printer>> GetPrintersByFormatAsync(PaperFormat format, CancellationToken cancellationToken = default)
-        => await _printerRepository.GetPrintersByFormatAsync(format, cancellationToken);
+        => await printerRepository.GetPrintersByFormatAsync(format, cancellationToken);
 
     public async Task<Printer?> GetPrinterByIdAsync(Guid printerId, CancellationToken cancellationToken = default)
-        => await _printerRepository.GetByIdAsync(printerId, cancellationToken);
+        => await printerRepository.GetByIdAsync(printerId, cancellationToken);
 
     public async Task<Printer?> GetPrinterWithCapabilitiesAsync(Guid printerId, CancellationToken cancellationToken = default)
-        => await _printerRepository.GetPrinterWithCapabilitiesAsync(printerId, cancellationToken);
+        => await printerRepository.GetPrinterWithCapabilitiesAsync(printerId, cancellationToken);
 
     public async Task<Printer> CreatePrinterAsync(string name, string model, string cupsName, string location, string description, int priority,
         CancellationToken cancellationToken = default)
     {
         try
         {
-            var existing = await _printerRepository.GetByCupsNameAsync(cupsName, cancellationToken);
+            var existing = await printerRepository.GetByCupsNameAsync(cupsName, cancellationToken);
             if (existing != null)
             {
                 throw new InvalidOperationException($"Принтер с именем в CUPS сервере {cupsName} уже существует");
@@ -59,15 +52,15 @@ public class PrinterService : IPrinterService
                 CreatedAt = DateTime.UtcNow
             };
 
-            await _printerRepository.AddAsync(printer, cancellationToken);
+            await printerRepository.AddAsync(printer, cancellationToken);
 
-            _logger.LogInformation("Создан принтер: {PrinterName} в CUPS сервере ({CupsName})", name, cupsName);
+            logger.LogInformation("Создан принтер: {PrinterName} в CUPS сервере ({CupsName})", name, cupsName);
 
             return printer;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка создания принтера {PrinterName}", name);
+            logger.LogError(ex, "Ошибка создания принтера {PrinterName}", name);
             throw;
         }
     }
@@ -77,7 +70,7 @@ public class PrinterService : IPrinterService
     {
         try
         {
-            var printer = await _printerRepository.GetByIdAsync(printerId, cancellationToken);
+            var printer = await printerRepository.GetByIdAsync(printerId, cancellationToken);
             if (printer == null)
             {
                 throw new InvalidOperationException($"Принтер с идентификатором {printerId} не найден");
@@ -104,15 +97,15 @@ public class PrinterService : IPrinterService
             if (isActive.HasValue)
                 printer.IsActive = isActive.Value;
 
-            await _printerRepository.UpdateAsync(printer, cancellationToken);
+            await printerRepository.UpdateAsync(printer, cancellationToken);
 
-            _logger.LogInformation("Принтер обновлен: {PrinterId}", printerId);
+            logger.LogInformation("Принтер обновлен: {PrinterId}", printerId);
 
             return printer;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка обновления принтера {PrinterId}", printerId);
+            logger.LogError(ex, "Ошибка обновления принтера {PrinterId}", printerId);
             throw;
         }
     }
@@ -121,7 +114,7 @@ public class PrinterService : IPrinterService
     {
         try
         {
-            var printer = await _printerRepository.GetByIdAsync(printerId, cancellationToken);
+            var printer = await printerRepository.GetByIdAsync(printerId, cancellationToken);
             if (printer == null)
             {
                 throw new InvalidOperationException($"Принтер с идентификатором {printerId} не найден");
@@ -130,13 +123,13 @@ public class PrinterService : IPrinterService
             // Soft delete by deactivating
             printer.IsActive = false;
             printer.Status = PrinterStatus.Inactive;
-            await _printerRepository.UpdateAsync(printer, cancellationToken);
+            await printerRepository.UpdateAsync(printer, cancellationToken);
 
-            _logger.LogInformation("Принтер деактивирован: {PrinterId}", printerId);
+            logger.LogInformation("Принтер деактивирован: {PrinterId}", printerId);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка удаления принтера {PrinterId}", printerId);
+            logger.LogError(ex, "Ошибка удаления принтера {PrinterId}", printerId);
             throw;
         }
     }
@@ -146,7 +139,7 @@ public class PrinterService : IPrinterService
     {
         try
         {
-            var printer = await _printerRepository.GetPrinterWithCapabilitiesAsync(printerId, cancellationToken);
+            var printer = await printerRepository.GetPrinterWithCapabilitiesAsync(printerId, cancellationToken);
             if (printer == null)
             {
                 throw new InvalidOperationException($"Принтер с идентификатором {printerId} не найден");
@@ -170,15 +163,15 @@ public class PrinterService : IPrinterService
             };
 
             printer.Capabilities.Add(capability);
-            await _printerRepository.UpdateAsync(printer, cancellationToken);
+            await printerRepository.UpdateAsync(printer, cancellationToken);
 
-            _logger.LogInformation("Возможность печати формата {Format} добавлена к принтеру {PrinterId}", format, printerId);
+            logger.LogInformation("Возможность печати формата {Format} добавлена к принтеру {PrinterId}", format, printerId);
 
             return capability;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка добавления возможности печати формата {Format} принтеру {PrinterId}", format, printerId);
+            logger.LogError(ex, "Ошибка добавления возможности печати формата {Format} принтеру {PrinterId}", format, printerId);
             throw;
         }
     }
@@ -193,14 +186,14 @@ public class PrinterService : IPrinterService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Ошибка удаления возможности {CapabilityId}", capabilityId);
+            logger.LogError(ex, "Ошибка удаления возможности {CapabilityId}", capabilityId);
             throw;
         }
     }
 
     public async Task UpdatePrinterStatusAsync(Guid printerId, PrinterStatus status, CancellationToken cancellationToken = default)
     {
-        await _printerRepository.UpdateStatusAsync(printerId, status, cancellationToken);
-        _logger.LogInformation("Printer {PrinterId} status updated to {Status}", printerId, status);
+        await printerRepository.UpdateStatusAsync(printerId, status, cancellationToken);
+        logger.LogInformation("Printer {PrinterId} status updated to {Status}", printerId, status);
     }
 }
