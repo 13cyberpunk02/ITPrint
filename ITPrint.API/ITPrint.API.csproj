@@ -17,4 +17,9 @@
       <Folder Include="Endpoints\" />
     </ItemGroup>
 
+    <ItemGroup>
+      <ProjectReference Include="..\ITPrint.Application\ITPrint.Application.csproj" />
+      <ProjectReference Include="..\ITPrint.Infrastructure\ITPrint.Infrastructure.csproj" />
+    </ItemGroup>
+
 </Project>
