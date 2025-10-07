@@ -6,13 +6,4 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
-    <ItemGroup>
-      <Folder Include="DTOs\Auth\" />
-      <Folder Include="DTOs\Common\" />
-      <Folder Include="DTOs\Printers\" />
-      <Folder Include="DTOs\PrintJobs\" />
-      <Folder Include="DTOs\Statistics\" />
-      <Folder Include="DTOs\Users\" />
-    </ItemGroup>
-
 </Project>

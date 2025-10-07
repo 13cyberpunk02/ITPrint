@@ -1,4 +1,6 @@
+using ITPrint.Application.Services;
 using ITPrint.Core.Interfaces.Repositories;
+using ITPrint.Core.Interfaces.Services;
 using ITPrint.Infrastructure.Data;
 using ITPrint.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -33,6 +35,13 @@ public static  class DependencyInjection
         services.AddScoped<IUserFileRepository, UserFileRepository>();
         services.AddScoped<IStatisticsRepository, StatisticsRepository>();
 
+        services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<ITokenService, TokenService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<IPrinterService, PrinterService>();
+        services.AddScoped<IPrintJobService, PrintJobService>();
+        services.AddScoped<IStatisticsService, StatisticsService>();
+        
         return services;
     }
     
@@ -42,7 +51,6 @@ public static  class DependencyInjection
         var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
         
         await context.Database.MigrateAsync();
-        
         
         await DbInitializer.SeedAsync(context);
     }
