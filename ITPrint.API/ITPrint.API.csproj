@@ -11,12 +11,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Common\Extensions\" />
-      <Folder Include="Common\Filters\" />
-      <Folder Include="Common\Middleware\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <ProjectReference Include="..\ITPrint.Application\ITPrint.Application.csproj" />
       <ProjectReference Include="..\ITPrint.Infrastructure\ITPrint.Infrastructure.csproj" />
     </ItemGroup>
