@@ -1,3 +1,4 @@
+using System.Reflection;
 using ITPrint.Core.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,6 +20,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     {
         base.OnModelCreating(modelBuilder);
         
-        modelBuilder.ApplyConfigurationsFromAssembly(typeof(ApplicationDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
     }
 }

@@ -20,7 +20,7 @@ public static  class DependencyInjection
         services.AddDbContext<ApplicationDbContext>(options =>
         {
             options.UseNpgsql(connectionString, 
-                npgsqlOptions => npgsqlOptions.MigrationsAssembly("PrintManagement.Infrastructure"));
+                npgsqlOptions => npgsqlOptions.MigrationsAssembly("ITPrint.Infrastructure"));
             
             // или для SQL Server - убери комментарий тут и закомментируй верхнее для postgres
             // options.UseSqlServer(connectionString,

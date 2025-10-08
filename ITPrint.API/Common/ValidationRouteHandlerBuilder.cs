@@ -9,7 +9,7 @@ public static class ValidationRouteHandlerBuilder
         builder.AddEndpointFilter(async (invocationContext, next) =>
         {
             var argument = invocationContext.Arguments.OfType<T>().FirstOrDefault();
-            if (argument == null) return await next(invocationContext);
+            if (argument is null) return await next(invocationContext);
             var response = argument.DataAnnotationsValidate();
 
             if (response.IsValid) return await next(invocationContext);
